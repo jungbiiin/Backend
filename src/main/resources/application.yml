@@ -1,0 +1,28 @@
+server:
+  port: 3001
+spring:
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 10MB
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        #show_sql: true
+        format_sql: true
+  profiles:
+    include:
+      - secret
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+file:
+  upload:
+    location: C:/Users/user/Desktop/gsmFestival/soonyee/src/main/resources/static/
+jwt:
+  secret: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
