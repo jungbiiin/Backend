@@ -33,6 +33,10 @@ public class Member implements UserDetails {
         this.password = password;
     }
 
+    public void updateCoin(int coin){
+        this.coin+=coin;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;

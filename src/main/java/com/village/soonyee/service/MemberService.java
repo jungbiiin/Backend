@@ -51,6 +51,8 @@ public class MemberService {
         boolean check = passwordEncoder.matches(password, member.getPassword());
         if(!check){throw new UserNotFoundException("Can't find user",ErrorCode.USER_NOT_FOUND);}
 
+        member.updateCoin(10);
+
         //토큰 발급
         final String accessToken=tokenProvider.generateAccessToken(member.getEmail());
         final String refreshToken=tokenProvider.generateRefreshToken(member.getEmail());
@@ -94,5 +96,14 @@ public class MemberService {
             userEmail = principal.toString();
         }
         return userEmail;
+    }
+
+    public void buyThing(int cost){
+        List<Member> byEmail = memberRepository.findByEmail(getUserEmail());
+        if(byEmail.isEmpty()){
+            throw new UserNotFoundException("please try after login",ErrorCode.USER_NOT_FOUND);
+        }
+        Member member = byEmail.get(0);
+        member.updateCoin(-cost);
     }
 }
