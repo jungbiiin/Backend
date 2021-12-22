@@ -1,6 +1,9 @@
 package com.village.soonyee.configuration.security.jwt;
 
 import com.village.soonyee.configuration.security.auth.MyUserDetailsService;
+import com.village.soonyee.exception.ErrorCode;
+import com.village.soonyee.exception.exception.InvalidTokenException;
+import com.village.soonyee.exception.exception.UserNotFoundException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,47 +22,38 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
-    private final MyUserDetailsService memberService;
-    private final TokenProvider tokenProvider;
+    private final MyUserDetailsService myUserDetailsService;
+    private final JwtUtil jwtUtil;
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken=request.getHeader("Authorization");
-        String refreshToken=request.getHeader("RefreshToken");
-        if(accessToken!=null){
-            String userEmail=accessTokenExtractEmail(accessToken);
-            if(userEmail!=null) registerUserinfoInSecurityContext(userEmail,request);
-            if(tokenProvider.isTokenExpired(accessToken) && refreshToken != null){
-                String newAccessToken = generateNewAccessToken(refreshToken);
-                response.addHeader("JwtToken", newAccessToken);
-            }
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
+        String accessToken = req.getHeader("Authorization");
+        // Access Token이 null이면 검증할 필요가 없다.
+        if (accessToken != null) {
+            String userEmail = accessTokenExtractEmail(accessToken);
+
+            if(userEmail != null) registerUserinfoInSecurityContext(userEmail, req);
         }
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(req, res);
     }
+
     private String accessTokenExtractEmail(String accessToken) {
         try {
-            return tokenProvider.getUserEmail(accessToken);
+            return jwtUtil.getUserEmail(accessToken);
         } catch (JwtException | IllegalArgumentException e ) {
-            throw new RuntimeException();
+            throw new InvalidTokenException("Invalid access token", ErrorCode.INVALID_TOKEN);
         }
     }
+
     private void registerUserinfoInSecurityContext(String userEmail, HttpServletRequest req) {
         try {
-            UserDetails userDetails = memberService.loadUserByUsername(userEmail);
+            UserDetails userDetails = myUserDetailsService.loadUserByUsername(userEmail);
 
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         } catch (NullPointerException e) {
-            throw new RuntimeException();
-        }
-    }
-
-    private String generateNewAccessToken(String refreshToken) {
-        try {
-            return tokenProvider.generateAccessToken(tokenProvider.getUserEmail(refreshToken));
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new RuntimeException();
+            throw new UserNotFoundException("Can't find user", ErrorCode.USER_NOT_FOUND);
         }
     }
 }
-

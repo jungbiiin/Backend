@@ -17,6 +17,7 @@ public enum ErrorCode {
     MEMBER_NOT_SAME(401, "Member Not Same", ErrorClassification.MEMBER+"-ERR-401"),
     FILE_NOT_EXIST(404, "Can't find file",ErrorClassification.COMMON+"-ERR-404"),
     WRONG_PATH(404, "Path isn't right", ErrorClassification.COMMON+"-ERR-404"),
+    INVALID_TOKEN(401, "Invalid Token", ErrorClassification.MEMBER+"-ERR-401"),
     ;
     private int status;
     private String message;

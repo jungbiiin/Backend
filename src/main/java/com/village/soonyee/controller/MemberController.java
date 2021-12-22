@@ -43,4 +43,9 @@ public class MemberController {
         memberService.updateStatusMessage(statusMessageDto);
         return responseService.getSuccessResult();
     }
+    @PostMapping("/buy/{cost}")
+    public CommonResult buyGift(@PathVariable int cost){
+        memberService.buyThing(cost);
+        return responseService.getSuccessResult();
+    }
 }
