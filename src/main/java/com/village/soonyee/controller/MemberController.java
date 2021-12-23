@@ -10,7 +10,6 @@ import com.village.soonyee.response.result.SingleResult;
 import com.village.soonyee.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
