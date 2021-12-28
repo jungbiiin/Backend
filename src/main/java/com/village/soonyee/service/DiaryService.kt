@@ -7,6 +7,7 @@ import com.village.soonyee.exception.exception.DiaryNotExistsException
 import com.village.soonyee.exception.exception.MemberNotExistsException
 import com.village.soonyee.repository.DiaryRepository
 import com.village.soonyee.repository.MemberRepository
+import com.village.soonyee.util.entity.EntityProvider
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,7 +17,7 @@ class DiaryService(
 ) {
 
     fun join(diaryDto: DiaryDto): Long {
-        return diaryDto.toEntity().apply {
+        return EntityProvider.loadEntity(Diary::class.java, diaryDto).apply {
             writer = memberRepository.findByEmail(MemberService.getUserEmail())[0]
             diaryRepository.save(this)
         }.id
